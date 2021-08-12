@@ -19,8 +19,7 @@ app.get('/', (req, res)=>{
   res.sendFile(__dirname + "/index.html");
 })
 
-//TO DO: Make new post to handle customer registration form
-// check format of field values - here on server side
+
 
 app.post('/' ,(req, res)=> {
   //get body form fields
@@ -34,8 +33,9 @@ app.post('/' ,(req, res)=> {
   let city = req.body.city;
   let state = req.body.state;
   let phoneNumber = req.body.phone_number;
-
   let zip = req.body.zip;
+  
+  // TASK*** Check format of form field values here on server side
 
   //mailchimp api key
   const apiKey = '4cf53003ebc05f4c27f8a03b9338c6fa-us5';
