@@ -26,3 +26,30 @@ app.post('/', (req, res)=>{
 //   <input name='num2' type="text" placeholder="second number">
 //   <button name='submit' type="submit">POST!</button>
 // </form> -->
+
+
+//NOTES -- FORM FIELDS
+
+//body-parser req access
+//urlencoded - req.body ??
+//json - req.params ??
+
+
+
+  ///////////////////////////////////////////
+  
+  // registrations = [];
+
+    // //get body form field values
+    // let zip = req.body.zip;
+    // let address = req.body.address;
+    // //user schema
+    // user = {address: address, zip: zip};
+    // console.log(user);
+    // //push to data structure
+    // registrations.push(user);
+
+    // console.log(registrations);
+    // // res.send(registrations);
+
+    // // res.redirect('/welcome.html');

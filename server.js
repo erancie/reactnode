@@ -83,31 +83,3 @@ app.get('/*', (req, res)=>{
 app.listen(port, (req, res)=>{
   console.log(`Server is running on port: ${port}`);
 }) 
-
-
-
-//NOTES
-
-//body-parser req access
-//urlencoded - req.body ??
-//json - req.params ??
-
-
-
-  ///////////////////////////////////////////
-  
-  // registrations = [];
-
-    // //get body form field values
-    // let zip = req.body.zip;
-    // let address = req.body.address;
-    // //user schema
-    // user = {address: address, zip: zip};
-    // console.log(user);
-    // //push to data structure
-    // registrations.push(user);
-
-    // console.log(registrations);
-    // // res.send(registrations);
-
-    // // res.redirect('/welcome.html');
