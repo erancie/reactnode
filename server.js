@@ -6,20 +6,15 @@ const { response } = require('express');
 const app = express();
 const port = 8080;
 
-registrations = [];
-
 app.use(bodyParser.urlencoded({extended: true})); 
 //makes things static from html (like css path)
 app.use(express.static('public')); 
 
 const base= `${__dirname}/public`;
 
-
 app.get('/', (req, res)=>{
   res.sendFile(__dirname + "/index.html");
 })
-
-
 
 app.post('/' ,(req, res)=> {
   //get body form fields
@@ -99,17 +94,20 @@ app.listen(port, (req, res)=>{
 
 
 
-  ////////////////////////////////////////////
-  // //get body form field values
-  // let zip = req.body.zip;
-  // let address = req.body.address;
-  // //user schema
-  // user = {address: address, zip: zip};
-  // console.log(user);
-  // //push to data structure
-  // registrations.push(user);
+  ///////////////////////////////////////////
+  
+  // registrations = [];
 
-  // console.log(registrations);
-  // // res.send(registrations);
+    // //get body form field values
+    // let zip = req.body.zip;
+    // let address = req.body.address;
+    // //user schema
+    // user = {address: address, zip: zip};
+    // console.log(user);
+    // //push to data structure
+    // registrations.push(user);
 
-  // // res.redirect('/welcome.html');
+    // console.log(registrations);
+    // // res.send(registrations);
+
+    // // res.redirect('/welcome.html');
