@@ -1,3 +1,25 @@
+//MONGOOSE
+
+// const mongoose = require('mongoose');
+
+// //////////////////////////////////
+// const { MongoClient } = require('mongodb');
+// const uri = "mongodb+srv://devAdmin:Ultima529>@itrust.a0vis.mongodb.net/aDatabase?retryWrites=true&w=majority";
+
+// mongoose.connect(uri, {useNewUrlParser: true, useUnifiedTopology: true});
+// const db = mongoose.connectons;
+// // db.createCollection('devices');
+// const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
+// client.connect(err => {
+//   const collection = client.db("test").collection("devices");
+//   // perform actions on the collection object
+//   console.log(collection);
+//   client.close();
+// });
+// ///////////////////////////////////////////////////
+
+
+
 //API test for browser
 
 const express = require('express');

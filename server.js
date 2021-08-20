@@ -3,9 +3,9 @@ const bodyParser = require('body-parser');
 const https = require('https');
 const { response } = require('express');
 
-const app = express();
 const port = 8080;
 
+let app = express();
 app.use(bodyParser.urlencoded({extended: true})); 
 //makes things static from html (like css path)
 app.use(express.static('public')); 
