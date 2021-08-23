@@ -29,14 +29,13 @@
             <option selected>Country</option>
             <option value="Australia">Australia</option>
             <option value="USA">USA</option>
-            <option value="saudi Arabia">Suadi Arabia</option>
+            <option value="Saudi Arabia">Suadi Arabia</option>
+            <option value="China">China</option>
+            <option value="England">England</option>
           </select>
         </div>
+
         <div class="form-row">
-
-          <!-- why doesn't select dropdown render with bootsrap? -->
-
-
 
           <div class="form-group col-md-6">
             <label for="firstname">First Name</label>
@@ -47,15 +46,21 @@
             <input type="text" id='lastname' name='lastname' class="form-control" aria-label="Last name">
           </div>
 
-          <div class="form-group col-md-6">
+          <div class="form-group col-md-7">
             <label for="inputEmail4">Email</label>
             <input type="email" name='email' class="form-control" id="inputEmail4">
           </div>
           <div class="form-group col-md-6">
-            <label for="inputPassword4">Password</label>
-            <input name='password' type="password" class="form-control" id="inputPassword4">
+            <label for="inputPassword">Password</label>
+            <input name='password' type="password" class="form-control" id="inputPassword">
           </div>
+          <div class="form-group col-md-6">
+            <label for="inputPassword2">Retype Password</label>
+            <input name='password2' type="password" class="form-control" id="inputPassword2">
+          </div>
+
         </div>
+
         <div class="form-group">
           <label for="inputAddress">Address</label>
           <input type="text" name="address" class="form-control" id="inputAddress">
@@ -69,13 +74,22 @@
             <label for="inputCity">City</label>
             <input name='city' type="text" class="form-control" id="inputCity">
           </div>
+
           <div class="form-group col-4 col-lg-4">
             <label for="inputState">State</label>
             <select name='state' id="inputState" class="form-control">
-              <option selected>Choose...</option>
-              <option>...</option>
+              <option selected>Select..</option>
+              <option value='VIC'>VIC</option>
+              <option value='NSW'>NSW</option>
+              <option value='QLD'>QLD</option>
+              <option value='WA'>WA</option>
+              <option value='SA'>SA</option>
+              <option value='TAS'>TAS</option>
+              <option value='ACT'>ACT</option>
+              <option value='NT'>NT</option>
             </select>
           </div>
+
           <div class="form-group col-4 col-md-2">
             <label for="inputZip">Zip</label>
             <input type="text" name="zip" class="form-control" id="inputZip">
@@ -87,8 +101,8 @@
         </div>
         <div class="form-group">
           <div class="form-check">
-            <input name='terms' class="form-check-input" type="checkbox" id="gridCheck">
-            <label class="form-check-label" for="gridCheck">
+            <input name='terms' value="agreed" class="form-check-input" type="checkbox" id="terms">
+            <label class="form-check-label" for="terms">
               I agree to the <a href="#">Terms & Conditions</a>
             </label>
           </div>
