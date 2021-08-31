@@ -25,7 +25,7 @@ db.once('open', function() {
 
 
 //EXPRESS////////////////
-const port = 8080;
+// const port = 8080;
 
 let app = express();
 app.use(bodyParser.urlencoded({extended: true})); 
@@ -55,6 +55,7 @@ app.post('/login', (req, res)=> {
     res.redirect('/welcome.html');
   }
   else{
+    res.redirect('/invalid.html');
     throw new Error('invalid email or password.');
   }
 
@@ -144,8 +145,12 @@ app.get('/*', (req, res)=>{
   res.sendFile(`${base}/404.html`) //sendFile requiresd base directory
 })
 
+//HEROKU PORT/////////////
+let port = process.env.PORT;
+if (port == null || port == "") {
+  port = 8080;
+}
+
 app.listen(port, (req, res)=>{
   console.log(`Server is running on port: ${port}`);
 }) 
-
-
