@@ -13,16 +13,19 @@
   <body>
 
     <!-- move this tho module -->
+
+    
+    <div class="container d-flex justify-content-end mt-5">
+      <a href="/login" class="btn btn-primary">LOGIN</a>
+    </div>
+    
     <div class="container header">
       <h1>Customer Registration</h1> 
     </div>
 
     <div class="container">
-      <!-- TODO: change to replicate 4.1P task form -->
-      <!-- TODO: put names in input tags for server side checking--><!-- IF not THEN error page sent from server-->
-      
-      <!-- action and method attributes needed -->
-      <form action="/" method="POST">  
+
+      <form action="/" method="POST"> <!-- action and method attributes needed -->
         <div class="form-group">
           <label for="country">Country</label>
           <select name='country' id='country' class="form-control form-select form-select-lg mb-3" aria-label=".form-select-lg Country">
@@ -107,12 +110,10 @@
             </label>
           </div>
         </div>
-        <button type="submit" name="submit" class="btn btn-primary">Sign in</button>
+        <button type="submit" name="submit" class="btn btn-primary mb-5">Sign in</button>
       </form>
       
     </div>
-
-
 
     <!-- Bootstrap -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>

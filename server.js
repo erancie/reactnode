@@ -3,81 +3,29 @@ const bodyParser = require('body-parser');
 const https = require('https');
 const { response } = require('express');
 const mongoose = require('mongoose');
-// const { WSAEWOULDBLOCK } = require('constants');
-var assert = require('assert');
-const { on } = require('events');
 const validator = require('validator');
+// import userSchema from './models/User.mjs'; //how to use import?
+const User = require('./models/User');
 
-const port = 8080;
 
 //MONGOOSE////////////////////
-const uri = 'mongodb://localhost:27017/itrust';
+const uri = 'mongodb+srv://admin-elliot:deakin2021@main.hzw1z.mongodb.net/main?retryWrites=true&w=majority';
+// const uri = 'mongodb://localhost:27017/itrust';
 mongoose.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true });
 const db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
 db.once('open', function() {
-  console.log('itrustdb connected');
+  console.log('main db connected');
 });
 
-//Users Schema w/ server side validation
-const userSchema = new mongoose.Schema({ 
-  firstname: { 
-    type: String, 
-    minlength: [3, 'first name must be at least 3 characters'], 
-    required: [true, 'enter First Name'] //checks this mongoose validation kind 2nd
-  }, 
-  lastname: {
-    type: String,
-    required: [true, "A last name must be entered"]
-  },
-  email:  {
-    type: String,
-    validate(value){ //to validate value aswell as type above
-      if(!validator.isEmail(value)){
-        throw new Error("Email is not valid");
-      }
-    }
-  },
-  country:  {
-    type: String,
-    required: [true, 'Country required']
-  },
-  password: { //TOFIX
-    type: String,
-    minlength: [8, 'Password must have at least 8 charaters. You gave {VALUE}.']
-  },
-  password2:  {
-    type: String,
-    validate(value){
-      if(!validator.equals(value, this.password)){
-        throw new Error("Your passwords do not match");
-      }
-    } 
-  },
-  address:  {
-    type: String,
-    required: [true, 'address required']
-  },
-  address2: String,
-  city:  {
-    type: String,
-    required: [true, 'City required']
-  },
-  state:  {
-    type: String,
-    enum: ['VIC', 'NSW', 'QLD', 'WA', 'SA', 'TAS', 'ACT', 'NT']
-  },
-  phoneNumber: String,
-  zip: Number,
-  terms: {
-    type: String,
-    required: [true, 'terms must be agreed to']
-  }
-});
+
 
 //Create User Model/Class
-const User = mongoose.model('User', userSchema);
+// const User = mongoose.model('User', userSchema);
 
+
+//EXPRESS////////////////
+const port = 8080;
 
 let app = express();
 app.use(bodyParser.urlencoded({extended: true})); 
@@ -87,13 +35,35 @@ app.use(express.static('public'));
 
 const base= `${__dirname}/public`;
 
-app.get('/', (req, res)=>{
-  // let logUsers = User.find({});
-  // console.log(logUsers);
-  res.sendFile(__dirname + "/index.html");
+app.get('/', (req, res)=>{ //might need to change home route
+  res.sendFile(base + "/register.html");
 })
 
-app.post('/' ,(req, res)=> {
+app.get('/login', (req, res) =>{
+  res.sendFile(base + "/login.html")
+})
+
+app.post('/login', (req, res)=> {
+  let email = req.body.email;
+  let password = req.body.password;
+
+
+  //check email exists and password matches that email
+  if(email && password){
+    //Check hashed password here?
+    console.log(`Email: ${email} Password: ${password}`);
+    res.redirect('/welcome.html');
+  }
+  else{
+    throw new Error('invalid email or password.');
+  }
+
+})
+
+app.post('/', (req, res)=> {
+
+  //Hash password here?
+
   //create new user from body parser
   const newUser = new User({
     firstname: req.body.firstname,
@@ -111,20 +81,18 @@ app.post('/' ,(req, res)=> {
     terms: req.body.terms
   });
 
-    //TOFIX**????
-  // let error = newUser.validateSync();
-  // assert.equal(error.errors['firstname'].message,'Your first name is required.');
-  // assert.equal(error.errors['password'].message, 'Password must be at least 8 characters')
-
   //save new user to db
   newUser.save((err)=>{
     err ? console.log(err) : console.log('New User Inserted Succesfully')
   })
 
+  //MAILCHIMP//////////////
+
   //get body form fields for mailchimp
   let firstname = req.body.firstname;
   let lastname = req.body.lastname;
   let email = req.body.email;
+  console.log(firstname, lastname, email);
 
   //mailchimp api key
   const apiKey = '4cf53003ebc05f4c27f8a03b9338c6fa-us5';
@@ -136,6 +104,13 @@ app.post('/' ,(req, res)=> {
     method: "POST",
     auth: `mystring:${apiKey}`
   }
+  //create request to mailchimp w/ https
+  const request = https.request(url, options, (res)=>{
+    res.on('data', (data)=>{
+      console.log(JSON.parse(data))
+    })
+  })
+
   //create request mailchimp obj with body fields
   const data = {
     members:[
@@ -151,48 +126,26 @@ app.post('/' ,(req, res)=> {
   }
   //convert to JSON format
   jsonData = JSON.stringify(data);
-  //create request to mailchimp w/ https
-  const request = https.request(url, options, (res)=>{
-    res.on('data', (data)=>{
-      console.log(JSON.parse(data))
-    })
-  })
+
   //pass in new user in JSON format
-  // request.write(jsonData)   // enable mc
-  // request.end()
-  console.log(firstname, lastname, email);
+  request.write(jsonData)   // enable API Key & uncomment to enable mailchimp
+  request.end()
+
   //redirect to home/welcome page - or dashboard. 
-  res.redirect(`/welcome.html`)
+  if(res.statusCode === 200){
+    res.redirect('/login.html') //redirect uses public folder
+  }else{   //front end error //**TO FIX** - only sends status 200
+    res.redirect('/404.html')
+  }
 })
 
 //error page with catch all
 app.get('/*', (req, res)=>{
-  res.sendFile(`${base}/404.html`)
+  res.sendFile(`${base}/404.html`) //sendFile requiresd base directory
 })
 
 app.listen(port, (req, res)=>{
   console.log(`Server is running on port: ${port}`);
 }) 
 
-
-
-//single mongoose entry example
-///////////////////////////////////
-// const user = new User({
-//   firstname: 'Bob',
-//   lastname: 'Dalgleesh',
-//   email: 'something@wew.com',
-//   country: 'Australia',
-//   password: 'abadpassword',
-//   address: 'line 1',
-//   address2: 'line 2',
-//   city: 'Melbourne',
-//   state: 'VIC',
-//   phoneNumber: '0408556655',
-//   zip: '3000'
-// });
-
-// user.save((err)=>{
-//   err ? console.log(err) : console.log('User Inserted Succesfully')
-// })
 
