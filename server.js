@@ -6,10 +6,11 @@ const mongoose = require('mongoose');
 const validator = require('validator');
 // import userSchema from './models/User.mjs'; //how to use import?
 const User = require('./models/User');
+const un, pw, dbt = require('./passes')
 
 
 //MONGOOSE////////////////////
-const uri = 'mongodb+srv://admin-elliot:deakin2021@main.hzw1z.mongodb.net/main?retryWrites=true&w=majority';
+const uri = `mongodb+srv://${un}:${pw}@main.hzw1z.mongodb.net/${dbt}?retryWrites=true&w=majority`;
 // const uri = 'mongodb://localhost:27017/itrust';
 mongoose.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true });
 const db = mongoose.connection;
