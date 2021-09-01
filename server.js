@@ -7,8 +7,8 @@ const validator = require('validator');
 //import User model //// import User from './models/User.mjs'; //how to use import?
 const User = require('./models/User');
 const bcrypt = require('bcrypt');
+// const {Expert} = require('./models.Expert.js')
 
-const saltRounds = 10;
 
 
 //MONGOOSE////////////////////
@@ -24,6 +24,8 @@ db.once('open', function() {
 //EXPRESS////////////////
 // const port = 8080;
 
+const saltRounds = 10;
+
 let app = express();
 app.use(bodyParser.urlencoded({extended: true})); 
 //makes things static from html (like css path)
@@ -36,53 +38,64 @@ app.get('/', (req, res)=>{ //might need to change home route
   res.sendFile(base + "/register.html");
 })
 
+
 app.get('/login', (req, res) =>{
   res.sendFile(base + "/login.html")
 })
 
 app.post('/login', (req, res)=> {
+  //check email exists and password matches that email  
 
-  //check email exists and password matches that email
-  let email = User.findOne({ email: req.body.email});
-  let hash = toString(User.findOne({ password: req.body.password}));
+  let e = User.findOne({ email: req.body.email});//TO FIX***
+  let hash = toString(User.findOne({email: e, password: req.body.password}));
 
-  if(!email){
+  // let em = JSON.parse(e);
+  //how to find the username and password from the same User documnent??***
+  console.log("login email: " + e + " login hash: " + hash)
+  //use bcrypt here??***
+  if(!e){
     res.redirect('/invalid.html');
     throw new Error('invalid email or password.');
   }
   bcrypt.compare(toString(req.body.password), hash, (err, result)=>{
     if(err) console.log(err)
     if(result) {
+      console.log("result: " + result)
       res.redirect('/welcome.html')
     }
   })
+
   // let email = req.body.email;
   // let password = req.body.password;
-
-
   // //check email exists and password matches that email
   // if(email && password){
   //   //Check hashed password here?
   //   console.log(`Email: ${email} Password: ${password}`);
   //   res.redirect('/welcome.html');
-  // }
+  // }a
   // else{
   //   res.redirect('/invalid.html');
   //   throw new Error('invalid email or password.');
   // }
+  // Works but not correct auth
 })
 
 app.post('/', (req, res)=> {
 
   //Hash password here?
-  let hashpw = bcrypt.hash(req.body.password, saltRounds, (err, hash)=>{
-    if(err) console.log(err) 
-    else return hash
-  })
-  let hashpw2 = bcrypt.hash(req.body.password2, saltRounds, (err, hash)=>{
-    if(err) console.log(err) 
-    else return hash
-  })
+  // let hashpw = bcrypt.hash(req.body.password, saltRounds, (err, hash)=>{
+  //   if(err) console.log(err) 
+  //   else {
+  //     console.log('hash post: ' + hash)
+  //     return hash 
+  //   }
+  // })
+  // console.log('hashpw: ' + hashpw)
+
+  // let hashpw2 = bcrypt.hash(req.body.password2, saltRounds, (err, hash)=>{
+  //   if(err) console.log(err) 
+  //   else return hash
+  // })
 
   //create new user from body parser
   const newUser = new User({
@@ -90,8 +103,8 @@ app.post('/', (req, res)=> {
     lastname: req.body.lastname,
     email: req.body.email,
     country: req.body.country,
-    password: hashpw,
-    password2: hashpw2,
+    password: req.body.password,
+    password2: req.body.password2,
     address: req.body.address,
     address2: req.body.address2,
     city: req.body.city,
@@ -105,6 +118,9 @@ app.post('/', (req, res)=> {
   newUser.save((err)=>{
     err ? console.log(err) : console.log('New User Inserted Succesfully')
   })
+
+
+
 
   //MAILCHIMP//////////////
 
@@ -148,8 +164,8 @@ app.post('/', (req, res)=> {
   jsonData = JSON.stringify(data);
 
   //pass in new user in JSON format
-  request.write(jsonData)   // enable API Key & uncomment to enable mailchimp
-  request.end()
+  // request.write(jsonData)   // enable API Key & uncomment to enable mailchimp
+  // request.end()
 
   //redirect to home/welcome page - or dashboard. 
   if(res.statusCode === 200){
@@ -159,7 +175,26 @@ app.post('/', (req, res)=> {
   }
 })
 
-//error page with catch all
+
+//EXPERT API ///////////////////////////////////
+
+app.get('/expert', (req, res)=>{
+  res.sendFile(base + '/expert.html')
+})
+
+app.post('/expert', (req, res)=>{
+  let name = req.body.name
+  // const expert = new Expert(name); //way to import api modules to server.js?***
+  console.log("name: " + name)
+  let sendname = JSON.stringify(name);
+  // let sendnamep = JSON.parse(name);
+  // res.send(JSON.stringify(name))
+  // res.send(toString(name))
+  res.send("String Name: " + toString(name) + " Name: " + name + " JSON stringify: " + sendname)
+})
+
+
+//error page with catch all///////////////////////////
 app.get('/*', (req, res)=>{
   res.sendFile(`${base}/404.html`) //sendFile requiresd base directory
 })

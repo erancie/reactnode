@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const validator = require('validator');
+const bcrypt = require('bcrypt');
 
 //Users Schema w/ server side validation
 const userSchema = new mongoose.Schema({ 
@@ -57,6 +58,15 @@ const userSchema = new mongoose.Schema({
   }
 });
 
-// export default userSchema; //???
+const saltRounds = 10;
+
+userSchema.pre('save', async (next)=>{
+  const salt = await bcrypt.genSalt();
+  this.password = await bcrypt.hash(this.password, salt);
+  next();
+})
 
 module.exports = mongoose.model('User', userSchema);
+
+
+// export default userSchema; //???
