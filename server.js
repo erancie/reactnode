@@ -4,11 +4,12 @@ const https = require('https');
 const { response } = require('express');
 const mongoose = require('mongoose');
 const validator = require('validator');
-// import userSchema from './models/User.mjs'; //how to use import?
+//import User model //// import User from './models/User.mjs'; //how to use import?
 const User = require('./models/User');
-// const un = require('./passes').default;
-// const pw = require('./passes').default;
-// const dbt = require('./passes').default;
+const bcrypt = require('bcrypt');
+
+const saltRounds = 10;
+
 
 //MONGOOSE////////////////////
 const uri = `mongodb+srv://admin-elliot:deakin2021@main.hzw1z.mongodb.net/main?retryWrites=true&w=majority`;
@@ -19,9 +20,6 @@ db.on('error', console.error.bind(console, 'connection error:'));
 db.once('open', function() {
   console.log('main db connected');
 });
-
-//Create User Model/Class
-// const User = mongoose.model('User', userSchema);
 
 //EXPRESS////////////////
 // const port = 8080;
@@ -43,26 +41,48 @@ app.get('/login', (req, res) =>{
 })
 
 app.post('/login', (req, res)=> {
-  let email = req.body.email;
-  let password = req.body.password;
-
 
   //check email exists and password matches that email
-  if(email && password){
-    //Check hashed password here?
-    console.log(`Email: ${email} Password: ${password}`);
-    res.redirect('/welcome.html');
-  }
-  else{
+  let email = User.findOne({ email: req.body.email});
+  let hash = toString(User.findOne({ password: req.body.password}));
+
+  if(!email){
     res.redirect('/invalid.html');
     throw new Error('invalid email or password.');
   }
+  bcrypt.compare(toString(req.body.password), hash, (err, result)=>{
+    if(err) console.log(err)
+    if(result) {
+      res.redirect('/welcome.html')
+    }
+  })
+  // let email = req.body.email;
+  // let password = req.body.password;
 
+
+  // //check email exists and password matches that email
+  // if(email && password){
+  //   //Check hashed password here?
+  //   console.log(`Email: ${email} Password: ${password}`);
+  //   res.redirect('/welcome.html');
+  // }
+  // else{
+  //   res.redirect('/invalid.html');
+  //   throw new Error('invalid email or password.');
+  // }
 })
 
 app.post('/', (req, res)=> {
 
   //Hash password here?
+  let hashpw = bcrypt.hash(req.body.password, saltRounds, (err, hash)=>{
+    if(err) console.log(err) 
+    else return hash
+  })
+  let hashpw2 = bcrypt.hash(req.body.password2, saltRounds, (err, hash)=>{
+    if(err) console.log(err) 
+    else return hash
+  })
 
   //create new user from body parser
   const newUser = new User({
@@ -70,8 +90,8 @@ app.post('/', (req, res)=> {
     lastname: req.body.lastname,
     email: req.body.email,
     country: req.body.country,
-    password: req.body.password,
-    password2: req.body.password2,
+    password: hashpw,
+    password2: hashpw2,
     address: req.body.address,
     address2: req.body.address2,
     city: req.body.city,
