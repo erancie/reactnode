@@ -39,47 +39,6 @@ app.get('/', (req, res)=>{ //might need to change home route
 })
 
 
-app.get('/login', (req, res) =>{
-  res.sendFile(base + "/login.html")
-})
-
-app.post('/login', (req, res)=> {
-  //check email exists and password matches that email  
-
-  let e = User.findOne({ email: req.body.email});//TO FIX***
-  let hash = toString(User.findOne({email: e, password: req.body.password}));
-
-  // let em = JSON.parse(e);
-  //how to find the username and password from the same User documnent??***
-  console.log("login email: " + e + " login hash: " + hash)
-  //use bcrypt here??***
-  if(!e){
-    res.redirect('/invalid.html');
-    throw new Error('invalid email or password.');
-  }
-  bcrypt.compare(toString(req.body.password), hash, (err, result)=>{
-    if(err) console.log(err)
-    if(result) {
-      console.log("result: " + result)
-      res.redirect('/welcome.html')
-    }
-  })
-
-  // let email = req.body.email;
-  // let password = req.body.password;
-  // //check email exists and password matches that email
-  // if(email && password){
-  //   //Check hashed password here?
-  //   console.log(`Email: ${email} Password: ${password}`);
-  //   res.redirect('/welcome.html');
-  // }a
-  // else{
-  //   res.redirect('/invalid.html');
-  //   throw new Error('invalid email or password.');
-  // }
-  // Works but not correct auth
-})
-
 app.post('/', (req, res)=> {
 
   //Hash password here?
@@ -120,8 +79,52 @@ app.post('/', (req, res)=> {
   })
 
 
+  // LOGIN
+  app.get('/login', (req, res) =>{
+    res.sendFile(base + "/login.html")
+  })
 
+  app.post('/login', (req, res)=> {
+    //check email exists and password matches that email  
+  
+    let e = User.findOne({ email: req.body.email});//TO FIX***
+    let hash = toString(User.findOne({email: e, password: req.body.password}));
+  
+    // let em = JSON.parse(e);
+    //how to find the username and password from the same User documnent??***
+    console.log("login email: " + e + " login hash: " + hash)
+    //use bcrypt here??***
+    if(!e){
+      res.redirect('/invalid.html');
+      throw new Error('invalid email or password.');
+    }
+    bcrypt.compare(toString(req.body.password), hash, (err, result)=>{
+      if(err) console.log(err)
+      if(result) {
+        console.log("result: " + result)
+        res.redirect('/welcome.html')
+      }
+    })
+  
+    // let email = req.body.email;
+    // let password = req.body.password;
+    // //check email exists and password matches that email
+    // if(email && password){
+    //   //Check hashed password here?
+    //   console.log(`Email: ${email} Password: ${password}`);
+    //   console.log(`Email: ${email} Password: ${password}`);
+    //   res.redirect('/welcome.html');
+    // }a
+    // else{
+    //   res.redirect('/invalid.html');
+    //   throw new Error('invalid email or password.');
+    // }
+    // Works but not correct auth
+  })
 
+  app.get('/experts', (req, res)=> {
+    res.sendFile(base + 'expert.html')
+  })
   //MAILCHIMP//////////////
 
   //get body form fields for mailchimp
