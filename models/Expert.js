@@ -1,13 +1,23 @@
 const mongoose = require('mongoose');
 
-'use strict';
-const autoBind = require('auto-bind');
-
-class Expert {
-  constructor(name){
-    this.name = name;
-    autoBind(this);
+const taskSchema = new mongoose.Schema(
+  {
+      name: {
+          type: String,
+          required:'Please enter your name'
+      },
+      address: {
+        type: String
+        // required: true
+      },
+      mobile: {
+        type: String
+        // required: true
+      },
+      password: {
+        type: String
+      }
   }
-}
+)
 
-module.exports = Expert;
+module.exports = mongoose.model("Experts", taskSchema);

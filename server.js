@@ -6,7 +6,12 @@ const mongoose = require('mongoose');
 const validator = require('validator');
 //import User model //// import User from './models/User.mjs'; //how to use import?
 const User = require('./models/User');
+const Expert = require('./models/Expert');//
+const Task = require('./models/Task');
+
 const bcrypt = require('bcrypt');
+const { send } = require('process');
+const { runInNewContext } = require('vm');
 // const {Expert} = require('./models.Expert.js')
 
 
@@ -94,37 +99,21 @@ app.post('/', (req, res)=> {
     //how to find the username and password from the same User documnent??***
     console.log("login email: " + e + " login hash: " + hash)
     //use bcrypt here??***
-    if(!e){
-      res.redirect('/invalid.html');
-      throw new Error('invalid email or password.');
-    }
-    bcrypt.compare(toString(req.body.password), hash, (err, result)=>{
-      if(err) console.log(err)
-      if(result) {
-        console.log("result: " + result)
-        res.redirect('/welcome.html')
-      }
-    })
-  
-    // let email = req.body.email;
-    // let password = req.body.password;
-    // //check email exists and password matches that email
-    // if(email && password){
-    //   //Check hashed password here?
-    //   console.log(`Email: ${email} Password: ${password}`);
-    //   console.log(`Email: ${email} Password: ${password}`);
-    //   res.redirect('/welcome.html');
-    // }a
-    // else{
+    // if(!e){
     //   res.redirect('/invalid.html');
     //   throw new Error('invalid email or password.');
     // }
-    // Works but not correct auth
+    // bcrypt.compare(toString(req.body.password), hash, (err, result)=>{
+    //   if(err) console.log(err)
+    //   if(result) {
+    //     console.log("result: " + result)
+    //     res.redirect('/welcome.html')
+    //   }
+    // })
+  
   })
 
-  app.get('/experts', (req, res)=> {
-    res.sendFile(base + 'expert.html')
-  })
+
   //MAILCHIMP//////////////
 
   //get body form fields for mailchimp
@@ -142,7 +131,7 @@ app.post('/', (req, res)=> {
   const options = {
     method: "POST",
     auth: `mystring:${apiKey}`
-  }
+  } 
   //create request to mailchimp w/ https
   const request = https.request(url, options, (res)=>{
     res.on('data', (data)=>{
@@ -179,22 +168,82 @@ app.post('/', (req, res)=> {
 })
 
 
-//EXPERT API ///////////////////////////////////
+//////////// EXPERT API //////// TASK 6.1P ////////////////  
 
-app.get('/expert', (req, res)=>{
-  res.sendFile(base + '/expert.html')
+//get all experts
+app.route('/experts')
+.get((req, res)=>{
+  // res.sendFile(base + '/experts.html')
+  Expert.find((err, expertList)=>{
+    if(err) res.send(err)
+    else res.send(expertList)
+  })
+})
+//add new expert
+.post((req, res)=>{
+  const expert = new Expert({
+    name: req.body.name, 
+    address: req.body.address, 
+    mobile: req.body.mobile, 
+    password: req.body.password}); 
+  expert.save((err, newExpert)=>{
+    if(newExpert) res.send(newExpert)
+    else res.send(err)
+  })
+})
+//delete all experts
+.delete((req, res)=>{
+  Expert.deleteMany((err)=>{
+    if (err) res.send(err)
+    else res.send('Deleted all experts.')
+  })
 })
 
-app.post('/expert', (req, res)=>{
-  let name = req.body.name
-  // const expert = new Expert(name); //way to import api modules to server.js?***
-  console.log("name: " + name)
-  let sendname = JSON.stringify(name);
-  // let sendnamep = JSON.parse(name);
-  // res.send(JSON.stringify(name))
-  // res.send(toString(name))
-  res.send("String Name: " + toString(name) + " Name: " + name + " JSON stringify: " + sendname)
+/////
+app.route('/experts/:ename')
+//retreive expert
+.get((req, res)=>{
+  let name = req.params.ename
+  Expert.find({name: name}, (err, expert)=>{
+    if(err) res.send(err)
+    else res.send(expert)
+  })
 })
+//update expert name
+.put((req, res)=>{
+  Expert.updateOne(
+    {name: req.params.ename}, //condition
+    {name: req.body.name},  // new name
+    // {overwrite: false}, //true clears other fields
+    (err)=>{
+      if (err) res.send(err)
+      else res.send(`Updated name`)
+    }  
+  )
+})
+//update expert address, mobile, password
+.patch((req, res)=>{
+  Expert.updateMany( 
+    {name: req.params.ename},
+    {$set: req.body }, //updates all requested in body of req.
+    (err)=>{
+      if(!err) res.send('Expert update successful')
+      else res.send(err)
+    }
+  )
+})
+//remove expert
+.delete((req, res)=>{
+  let name = req.params.ename
+  Expert.deleteOne({name: name}, (err)=>{
+    if(err) res.send(err)
+    else res.send(`${name} deleted. `)
+  })
+})
+
+///////////////////////////////////////
+//way to import api modules to server.js?***
+
 
 
 //error page with catch all///////////////////////////
