@@ -156,8 +156,8 @@ app.post('/', (req, res)=> {
   jsonData = JSON.stringify(data);
 
   //pass in new user in JSON format
-  // request.write(jsonData)   // enable API Key & uncomment to enable mailchimp
-  // request.end()
+  request.write(jsonData)   // enable API Key & uncomment to enable mailchimp
+  request.end()
 
   //redirect to home/welcome page - or dashboard. 
   if(res.statusCode === 200){
@@ -199,7 +199,7 @@ app.route('/experts')
   })
 })
 
-/////
+///// 
 app.route('/experts/:ename')
 //retreive expert
 .get((req, res)=>{
@@ -243,8 +243,6 @@ app.route('/experts/:ename')
 
 ///////////////////////////////////////
 //way to import api modules to server.js?***
-
-
 
 //error page with catch all///////////////////////////
 app.get('/*', (req, res)=>{
