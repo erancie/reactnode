@@ -60,11 +60,24 @@ const userSchema = new mongoose.Schema({
 
 const saltRounds = 10;
 
-userSchema.pre('save', async (next)=>{
-  const salt = await bcrypt.genSalt();
-  this.password = await bcrypt.hash(this.password, salt);
-  next();
-  console.log(this.password);
+userSchema.pre('save', async function (next){
+  try {
+    const salt = await bcrypt.genSalt(10);
+    console.log(`email: ${this.email} password: ${this.password}`)
+    this.password = await bcrypt.hash(this.password, salt);
+    this.password2 = await bcrypt.hash(this.password2, salt);
+    console.log(`Salt: ${salt}`)
+    console.log(`Hash: ${this.password}`)
+    console.log(`Hash2: ${this.password2}`)
+    next()
+  } catch (err) {
+    next(err);
+  }
+  // console.log(this.password);
+})
+
+userSchema.post('save', async function (next){
+  console.log('post userSchema middleware')
 })
 
 module.exports = mongoose.model('User', userSchema);

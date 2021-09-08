@@ -26,6 +26,18 @@ db.once('open', function() {
   console.log('main db connected');
 });
 
+
+bcrypt.genSalt().then(salt => {
+  // bcrypt.hash()
+  console.log(salt)
+  console.log(salt)
+})
+bcrypt.genSalt().then(salt => {
+  // bcrypt.hash()
+  console.log(salt)
+  console.log(salt)
+})
+
 //EXPRESS////////////////
 // const port = 8080;
 
@@ -34,7 +46,6 @@ const saltRounds = 10;
 let app = express();
 app.use(bodyParser.urlencoded({extended: true})); 
 //makes things static from html (like css path)
-
 app.use(express.static('public')); 
 
 const base= `${__dirname}/public`;
@@ -43,23 +54,41 @@ app.get('/', (req, res)=>{ //might need to change home route
   res.sendFile(base + "/register.html");
 })
 
+// LOGIN
+app.get('/login', (req, res) =>{
+  res.sendFile(base + "/login.html")
+})
+
+app.post('/login', (req, res)=> {
+  //check email exists and password matches that email  
+
+  let em = User.findOne({ email: req.body.email});//TO FIX***
+  let hash = toString(User.findOne({email: e, password: req.body.password}));
+
+  // let em = JSON.parse(e);
+  //how to find the username and password from the same User documnent??***
+  console.log("login email: " + e + " login hash: " + hash)
+  //use bcrypt here??***
+  // try {
+  //   const {email, password} = req.body;
+  //   const user = await db.('user').first('*').where({email: em}) ; //***************** */
+  //   if (user) {
+  //     const valid = await bcrypt.compare(password, hash)
+  //     if (valid) {
+  //       res.status.apply(200).json.('valid email');
+  //     }
+  //     else{
+  //       res.json('wrong pass')
+  //     }
+  //   } else {
+  //     res.status(404).send('User not found');
+  //   }
+  // } catch (e) {
+  //   res.send('Broken app')
+  // }
+})
 
 app.post('/', (req, res)=> {
-
-  //Hash password here?
-  // let hashpw = bcrypt.hash(req.body.password, saltRounds, (err, hash)=>{
-  //   if(err) console.log(err) 
-  //   else {
-  //     console.log('hash post: ' + hash)
-  //     return hash 
-  //   }
-  // })
-  // console.log('hashpw: ' + hashpw)
-
-  // let hashpw2 = bcrypt.hash(req.body.password2, saltRounds, (err, hash)=>{
-  //   if(err) console.log(err) 
-  //   else return hash
-  // })
 
   //create new user from body parser
   const newUser = new User({
@@ -83,39 +112,7 @@ app.post('/', (req, res)=> {
     err ? console.log(err) : console.log('New User Inserted Succesfully')
   })
 
-
-  // LOGIN
-  app.get('/login', (req, res) =>{
-    res.sendFile(base + "/login.html")
-  })
-
-  app.post('/login', (req, res)=> {
-    //check email exists and password matches that email  
-  
-    let e = User.findOne({ email: req.body.email});//TO FIX***
-    let hash = toString(User.findOne({email: e, password: req.body.password}));
-  
-    // let em = JSON.parse(e);
-    //how to find the username and password from the same User documnent??***
-    console.log("login email: " + e + " login hash: " + hash)
-    //use bcrypt here??***
-    // if(!e){
-    //   res.redirect('/invalid.html');
-    //   throw new Error('invalid email or password.');
-    // }
-    // bcrypt.compare(toString(req.body.password), hash, (err, result)=>{
-    //   if(err) console.log(err)
-    //   if(result) {
-    //     console.log("result: " + result)
-    //     res.redirect('/welcome.html')
-    //   }
-    // })
-  
-  })
-
-
   //MAILCHIMP//////////////
-
   //get body form fields for mailchimp
   let firstname = req.body.firstname;
   let lastname = req.body.lastname;
@@ -155,9 +152,9 @@ app.post('/', (req, res)=> {
   //convert to JSON format
   jsonData = JSON.stringify(data);
 
-  //pass in new user in JSON format
-  request.write(jsonData)   // enable API Key & uncomment to enable mailchimp
-  request.end()
+  // //pass in new user in JSON format
+  // request.write(jsonData)   // enable API Key & uncomment to enable mailchimp
+  // request.end()
 
   //redirect to home/welcome page - or dashboard. 
   if(res.statusCode === 200){
@@ -165,6 +162,7 @@ app.post('/', (req, res)=> {
   }else{   //front end error //**TO FIX** - only sends status 200
     res.redirect('/404.html')
   }
+  
 })
 
 
@@ -199,7 +197,7 @@ app.route('/experts')
   })
 })
 
-///// 
+///// API //////////
 app.route('/experts/:ename')
 //retreive expert
 .get((req, res)=>{
@@ -212,8 +210,8 @@ app.route('/experts/:ename')
 //update expert name
 .put((req, res)=>{
   Expert.updateOne(
-    {name: req.params.ename}, //condition
-    {name: req.body.name},  // new name
+    { name: req.params.ename }, //condition
+    { name: req.body.name },  // new name
     // {overwrite: false}, //true clears other fields
     (err)=>{
       if (err) res.send(err)
