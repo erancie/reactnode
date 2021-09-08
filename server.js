@@ -26,23 +26,17 @@ db.once('open', function() {
   console.log('main db connected');
 });
 
-
+//testing gen salt permutations
 bcrypt.genSalt().then(salt => {
-  // bcrypt.hash()
   console.log(salt)
   console.log(salt)
 })
 bcrypt.genSalt().then(salt => {
-  // bcrypt.hash()
   console.log(salt)
   console.log(salt)
 })
 
 //EXPRESS////////////////
-// const port = 8080;
-
-const saltRounds = 10;
-
 let app = express();
 app.use(bodyParser.urlencoded({extended: true})); 
 //makes things static from html (like css path)
@@ -50,7 +44,7 @@ app.use(express.static('public'));
 
 const base= `${__dirname}/public`;
 
-app.get('/', (req, res)=>{ //might need to change home route
+app.get('/', (req, res)=>{ //will need to change home route to landing
   res.sendFile(base + "/register.html");
 })
 
@@ -60,32 +54,21 @@ app.get('/login', (req, res) =>{
 })
 
 app.post('/login', (req, res)=> {
-  //check email exists and password matches that email  
-
-  let em = User.findOne({ email: req.body.email});//TO FIX***
-  let hash = toString(User.findOne({email: e, password: req.body.password}));
-
-  // let em = JSON.parse(e);
-  //how to find the username and password from the same User documnent??***
-  console.log("login email: " + e + " login hash: " + hash)
-  //use bcrypt here??***
-  // try {
-  //   const {email, password} = req.body;
-  //   const user = await db.('user').first('*').where({email: em}) ; //***************** */
-  //   if (user) {
-  //     const valid = await bcrypt.compare(password, hash)
-  //     if (valid) {
-  //       res.status.apply(200).json.('valid email');
-  //     }
-  //     else{
-  //       res.json('wrong pass')
-  //     }
-  //   } else {
-  //     res.status(404).send('User not found');
-  //   }
-  // } catch (e) {
-  //   res.send('Broken app')
-  // }
+  //find user according to email 
+  //if exists, compare password to user password 
+  const {email, password} = req.body;
+  User.findOne({ email: email}, (e, user)=>{
+    if (e) { res.send("No such email.") } //TOFIX - handle no email err
+    bcrypt.compare(password, user.password, (e, result)=>{
+      if (result) {
+        console.log("Password compare : " + result)
+        res.sendFile(base + '/welcome.html')
+      }else{
+        console.log("Password compare : " + result)
+        res.send("Incorrect password")
+      }
+    })
+  })
 })
 
 app.post('/', (req, res)=> {
@@ -163,7 +146,7 @@ app.post('/', (req, res)=> {
     res.redirect('/404.html')
   }
   
-})
+})//end 
 
 
 //////////// EXPERT API //////// TASK 6.1P ////////////////  
