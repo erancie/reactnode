@@ -26,15 +26,6 @@ db.once('open', function() {
   console.log('main db connected');
 });
 
-//testing gen salt permutations
-bcrypt.genSalt().then(salt => {
-  console.log(salt)
-  console.log(salt)
-})
-bcrypt.genSalt().then(salt => {
-  console.log(salt)
-  console.log(salt)
-})
 
 //EXPRESS////////////////
 let app = express();
@@ -72,7 +63,6 @@ app.post('/login', (req, res)=> {
 })
 
 app.post('/', (req, res)=> {
-
   //create new user from body parser
   const newUser = new User({
     firstname: req.body.firstname,
@@ -148,6 +138,13 @@ app.post('/', (req, res)=> {
   
 })//end 
 
+//delete all users (take this out of API?)
+app.delete('/users', (req, res)=>{
+  User.deleteMany((err)=>{
+    if (err) res.send(err)
+    else res.send('Deleted all users.')
+  })
+})
 
 //////////// EXPERT API //////// TASK 6.1P ////////////////  
 
