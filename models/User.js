@@ -58,11 +58,10 @@ const userSchema = new mongoose.Schema({
   }
 });
 
-const saltRounds = 10;
-
 userSchema.pre('save', async function (next){
   try {
-    const salt = await bcrypt.genSalt(10);
+    const saltRounds = 10;
+    const salt = await bcrypt.genSalt(saltRounds);
     console.log(`email: ${this.email} password: ${this.password}`)
     this.password = await bcrypt.hash(this.password, salt);
     this.password2 = await bcrypt.hash(this.password2, salt);
@@ -73,7 +72,6 @@ userSchema.pre('save', async function (next){
   } catch (err) {
     next(err);
   }
-  // console.log(this.password);
 })
 
 userSchema.post('save', async function (next){

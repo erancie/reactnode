@@ -4,17 +4,12 @@ const https = require('https');
 const { response } = require('express');
 const mongoose = require('mongoose');
 const validator = require('validator');
-//import User model //// import User from './models/User.mjs'; //how to use import?
 const User = require('./models/User');
 const Expert = require('./models/Expert');//
 const Task = require('./models/Task');
-
 const bcrypt = require('bcrypt');
 const { send } = require('process');
-const { runInNewContext } = require('vm');
-// const {Expert} = require('./models.Expert.js')
-
-
+// import User from './models/User.mjs'; //how to use import?
 
 //MONGOOSE////////////////////
 const uri = `mongodb+srv://admin-elliot:deakin2021@main.hzw1z.mongodb.net/main?retryWrites=true&w=majority`;
@@ -26,7 +21,6 @@ db.once('open', function() {
   console.log('main db connected');
 });
 
-
 //EXPRESS////////////////
 let app = express();
 app.use(bodyParser.urlencoded({extended: true})); 
@@ -35,35 +29,43 @@ app.use(express.static('public'));
 
 const base= `${__dirname}/public`;
 
-app.get('/', (req, res)=>{ //will need to change home route to landing
+app.get('/', (req, res)=>{    //will need to change home route to landing
   res.sendFile(base + "/register.html");
 })
 
-// LOGIN
+// LOGIN ////////////////////////////////
 app.get('/login', (req, res) =>{
   res.sendFile(base + "/login.html")
 })
 
 app.post('/login', (req, res)=> {
   //find user according to email 
-  //if exists, compare password to user password 
+  //if exists, compare form password to user password 
   const {email, password} = req.body;
   User.findOne({ email: email}, (e, user)=>{
-    if (e) { res.send("No such email.") } //TOFIX - handle no email err
-    bcrypt.compare(password, user.password, (e, result)=>{
-      if (result) {
-        console.log("Password compare : " + result)
-        res.sendFile(base + '/welcome.html')
-      }else{
-        console.log("Password compare : " + result)
-        res.send("Incorrect password")
-      }
-    })
+    if (e) { res.send("No such email.") }                       //TOFIX - handle no email err
+    else{
+      bcrypt.compare(password, user.password, (e, result)=>{
+        if (result) { //bool
+          console.log("Password compare : " + result)
+          res.redirect('/welcome')
+        }else{
+          console.log("Password compare : " + result)//false
+          res.send("Incorrect password")
+        }
+      })
+    }
   })
 })
 
-app.post('/', (req, res)=> {
-  //create new user from body parser
+//welcome page////////////////////////////
+app.get('/welcome', (req, res)=> {
+  res.sendFile(base + "/welcome.html")
+})
+
+//HOME - Register ////////////////////////
+app.post('/', (req, res)=> { //will change route to /register.
+  //create new user from body fields
   const newUser = new User({
     firstname: req.body.firstname,
     lastname: req.body.lastname,
@@ -87,9 +89,7 @@ app.post('/', (req, res)=> {
 
   //MAILCHIMP//////////////
   //get body form fields for mailchimp
-  let firstname = req.body.firstname;
-  let lastname = req.body.lastname;
-  let email = req.body.email;
+  let {firstname, lastname, email} = req.body;
   console.log(firstname, lastname, email);
 
   //mailchimp api key
@@ -108,7 +108,6 @@ app.post('/', (req, res)=> {
       console.log(JSON.parse(data))
     })
   })
-
   //create request mailchimp obj with body fields
   const data = {
     members:[
@@ -124,7 +123,6 @@ app.post('/', (req, res)=> {
   }
   //convert to JSON format
   jsonData = JSON.stringify(data);
-
   // //pass in new user in JSON format
   // request.write(jsonData)   // enable API Key & uncomment to enable mailchimp
   // request.end()
@@ -135,10 +133,9 @@ app.post('/', (req, res)=> {
   }else{   //front end error //**TO FIX** - only sends status 200
     res.redirect('/404.html')
   }
-  
-})//end 
+})//end post /
 
-//delete all users (take this out of API?)
+//delete all users (take this endpoint out of API?)
 app.delete('/users', (req, res)=>{
   User.deleteMany((err)=>{
     if (err) res.send(err)
@@ -164,6 +161,7 @@ app.route('/experts')
     address: req.body.address, 
     mobile: req.body.mobile, 
     password: req.body.password}); 
+
   expert.save((err, newExpert)=>{
     if(newExpert) res.send(newExpert)
     else res.send(err)
@@ -177,14 +175,16 @@ app.route('/experts')
   })
 })
 
-///// API //////////
 app.route('/experts/:ename')
 //retreive expert
 .get((req, res)=>{
   let name = req.params.ename
   Expert.find({name: name}, (err, expert)=>{
     if(err) res.send(err)
-    else res.send(expert)
+    else {
+      console.log(expert)
+      res.send(expert)
+    }
   })
 })
 //update expert name
@@ -219,15 +219,22 @@ app.route('/experts/:ename')
   })
 })
 
-///////////////////////////////////////
+////////////////////////////////////////////
 //way to import api modules to server.js?***
 
-//error page with catch all///////////////////////////
+///// USER API ////////////**next**/
+app.get('/users', (req,res)=>{
+  User.find({}, (err, users)=>{
+    if(err) send(err)
+    else res.send(users)
+  })
+})
+//error page with catch all/////////////////
 app.get('/*', (req, res)=>{
   res.sendFile(`${base}/404.html`) //sendFile requiresd base directory
 })
 
-//HEROKU PORT/////////////
+//HEROKU PORT///////////////////////////////
 let port = process.env.PORT;
 if (port == null || port == "") {
   port = 8080;
