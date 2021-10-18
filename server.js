@@ -61,6 +61,7 @@ app.post('/login', (req, res)=> {
 //welcome page////////////////////////////
 app.get('/welcome', (req, res)=> {
   res.sendFile(base + "/welcome.html")
+  
 })
 
 //HOME - Register ////////////////////////
