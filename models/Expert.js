@@ -16,7 +16,9 @@ const taskSchema = new mongoose.Schema(
       },
       password: {
         type: String
-      }
+      },
+      image: Image,
+      text: String,
   }
 )
 
